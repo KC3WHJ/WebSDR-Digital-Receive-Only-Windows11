@@ -1,0 +1,6 @@
+# Windows scripts: always check out with CRLF line endings, whatever the local Git settings.
+* text=auto
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.cs text eol=crlf
+*.template text eol=crlf
