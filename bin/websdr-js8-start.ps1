@@ -112,8 +112,13 @@ if (-not $NoCommStat) {
         # CommStat's window needs about 1360x768; on a smaller screen (or high Windows scaling)
         # COMMSTAT_SCALE draws it smaller. Only CommStat gets the variable.
         if ($c.COMMSTAT_SCALE -match '^(0?\.\d+|[0-3](\.\d+)?)$') { $env:QT_SCALE_FACTOR = $c.COMMSTAT_SCALE }
+        # CommStat prints received JS8 traffic, which can contain characters such as JS8's
+        # end-of-message diamond. Written to the log in Windows' default code page, that
+        # print fails inside a Qt handler and PyQt aborts the whole program - so its
+        # output is UTF-8 (as it always is on Linux).
+        $env:PYTHONIOENCODING = 'utf-8'
         [void](Start-Detached $pyw @((Join-Path $c.COMMSTAT_DIR 'little_gucci.py')) $c.COMMSTAT_DIR $log)
-        Remove-Item Env:\QT_SCALE_FACTOR -ErrorAction SilentlyContinue
+        Remove-Item Env:\QT_SCALE_FACTOR, Env:\PYTHONIOENCODING -ErrorAction SilentlyContinue
         Start-Sleep -Seconds 5
         if (@(Get-CommStatProcess $c).Count -gt 0) { Write-Info "Started (log: $log)." }
         else { Write-Warn "CommStat exited straight away - see $log and $log.err." }
